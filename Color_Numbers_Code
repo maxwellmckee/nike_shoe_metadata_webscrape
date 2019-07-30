@@ -1,0 +1,140 @@
+# Nike Shoe Color Numbers
+
+We will write a program that looks at the first 60 Men's Shoes available on the Nike website and...
+* Gives the title of all shoes that have 1,2,3,4,5,6,7, or 8 colors
+* Gives the number of colors available for a shoe type
+******
+Obstacles:
+* Due to Nike's infinite scrolling feature, the URL only retrieves the first 60 pairs of shoes. The URL for the hidden 'pages' that contain the remaining pairs of shoes are hidden from the HTML
+
+#Packages and program URLs
+from urllib.request import urlopen as uReq
+from bs4 import BeautifulSoup as soup
+
+my_url1 = 'https://store.nike.com/us/en_us/pw/mens-shoes/7puZoi3' #all men's shoes
+my_url2 = 'https://store.nike.com/us/en_us/pw/womens-shoes/7ptZoi3' #all women's shoes
+
+#Establish Connection, grab the page HTML
+uClient1 = uReq(my_url1)
+html_page1 = uClient1.read()
+uClient1.close() #need to close because program can't run with page still open and in use
+
+uClient2 = uReq(my_url2)
+html_page2 = uClient2.read()
+uClient2.close()
+
+#Parse HTML, meaning make it so we can extract relevant HTML
+page_soup1 = soup(html_page1, "html.parser") #html.parser tells page_soup to be parsed as an HTML
+page_soup2 = soup(html_page2, "html.parser")
+
+shoesOrColor = input('Do you want to find out...\n 1. The number of colors offered for a shoe type\n 2. The shoe types offered for a number of colors\n Please input a 1 or a 2: ')
+if shoesOrColor == '1': #User wants to display number of colors for chosen shoe
+    
+    containers1 = page_soup1.findAll("div", {"class":"grid-item-info"}) #Male shoe product
+    containers2 = page_soup2.findAll("div", {"class":"grid-item-info"}) #Female shoe product
+    
+    Title_list_mens = []
+    Title_list_womens = []
+    
+    for container in containers1:
+        
+        container_title = container.findAll("p", {"class":"product-display-name nsg-font-family--base edf-font-size--regular nsg-text--dark-grey"})
+        container_title = container_title[0].text #finds the product title
+        Title_list_mens.append(container_title) #add shoe title to list of mens shoes
+        
+    for container in containers2:
+        
+        container_title = container.findAll("p", {"class":"product-display-name nsg-font-family--base edf-font-size--regular nsg-text--dark-grey"})
+        container_title = container_title[0].text #finds the product title
+        Title_list_womens.append(container_title) #add shoe title to list of womens shoes
+    
+    print('\n')
+    print('Mens Shoes: ' + str(Title_list_mens) + '\n\n' + 'Womens Shoes: ' + str(Title_list_womens))
+    
+    Title_input = input('\nPlease input a shoe title: ')
+    
+    if Title_input in Title_list_mens:
+        
+        Title_index = Title_list_mens.index(Title_input) #finds the index of inputted shoe in list of mens shoes
+        
+        num_colors = containers1[Title_index].findAll("div", {"class":"number-of-colors edf-font-size--small nsg-text--dark-grey"}) #the Title_index corresponds to HTML index
+        num_colors = int(str(num_colors[0].text[0])) #finds first character in first string of number of colors in HTML
+        
+        print('\nThe number of colors offered for ' + Title_input + ' is ' + str(num_colors))
+        
+    elif Title_input in Title_list_womens:
+        
+        Title_index = Title_list_womens.index(Title_input)
+        
+        num_colors = containers2[Title_index].findAll("div", {"class":"number-of-colors edf-font-size--small nsg-text--dark-grey"}) #the Title_index corresponds to HTML index
+        num_colors = int(str(num_colors[0].text[0])) #finds first character in first string of number of colors in HTML
+        
+        print('\nThe number of colors offered for ' + Title_input + ' is ' + str(num_colors))
+        
+    else:
+        print('No shoe title by that name found...')
+    
+    
+elif shoesOrColor == '2':
+                     
+    MorFShoes = input('Type M for Mens Shoes and F for Womens Shoes: ') #choose to examine m or f shoes
+    if MorFShoes==('m' or 'M'):
+        containers = page_soup1.findAll("div", {"class":"grid-item-info"}) #finds the main info for each pair of shoes
+    elif MorFShoes==('f' or 'F'):
+        containers = page_soup2.findAll("div", {"class":"grid-item-info"}) #finds the main info for each pair of shoes
+    else:
+        print('Error, valid input not received...')
+
+    color1 = []
+    color2 = []
+    color3 = []
+    color4 = []
+    color5 = []
+    color6 = []
+    color7 = []
+    color8plus = []
+
+    for container in containers:
+        num_colors =  container.findAll("div", {"class":"number-of-colors edf-font-size--small nsg-text--dark-grey"}) #the Title_index corresponds to HTML index
+        num_colors = float(str(num_colors[0].text[0])) #finds first character in first string of number of colors in HTML
+        title = container.findAll("p", {"class":"product-display-name nsg-font-family--base edf-font-size--regular nsg-text--dark-grey"})
+        title = title[0].text #finds the product title
+
+        #appends title to number list
+        if num_colors==1:
+            color1.append(title)
+        elif num_colors==2:
+            color2.append(title)
+        elif num_colors==3:
+            color3.append(title)
+        elif num_colors==4:
+            color4.append(title)
+        elif num_colors==5:
+            color5.append(title)
+        elif num_colors==6:
+            color6.append(title)
+        elif num_colors==7:
+            color7.append(title)
+        elif num_colors>=8:
+            color8plus.append(title)
+            
+    colorOptions = input('Would you like to look at available shoes in 1, 2, 3, 4, 5, 6, 7, or 8+ colors?\n\n')
+    if colorOptions == '1':
+        print(color1)
+    elif colorOptions == '2':
+        print(color2)
+    elif colorOptions == '3':
+        print(color3)
+    elif colorOptions == '4':
+        print(color4)
+    elif colorOptions == '5':
+        print(color5)
+    elif colorOptions == '6':
+        print(color6)
+    elif colorOptions == '7':
+        print(color7)
+    elif colorOptions == '8+':
+        print(color8)
+    else: print('No valid input received...')
+        
+else: print('No valid input received...')
